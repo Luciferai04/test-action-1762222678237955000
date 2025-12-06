@@ -48,192 +48,143 @@ This platform helps Indian brands track and optimize their visibility across AI 
 
 ### System Architecture Diagram
 
-```tikz
-\begin{tikzpicture}[node distance=2cm, auto]
-    % User Layer
-    \node[draw, rectangle, fill=blue!20, minimum width=3cm, minimum height=1cm] (user) {Users (Web Browser)};
+```mermaid
+graph TB
+    User[Users<br/>Web Browser] --> Frontend[React Frontend<br/>Vite]
+    Frontend --> API[FastAPI Backend]
+    API --> Auth[Auth Service]
+    API --> Metrics[Metrics Service]
+    API --> Crawler[Crawler Service]
+    Auth --> DB[(PostgreSQL)]
+    Metrics --> DB
+    Crawler --> ChatGPT[ChatGPT]
+    Crawler --> Perplexity[Perplexity]
+    Crawler --> Other[Gemini/Claude/Grok/Meta AI]
     
-    % Frontend Layer
-    \node[draw, rectangle, fill=green!20, minimum width=3cm, minimum height=1cm, below of=user] (frontend) {React Frontend (Vite)};
-    
-    % API Gateway
-    \node[draw, rectangle, fill=yellow!20, minimum width=3cm, minimum height=1cm, below of=frontend] (api) {FastAPI Backend};
-    
-    % Services Layer
-    \node[draw, rectangle, fill=orange!20, minimum width=2.5cm, minimum height=1cm, below left of=api, xshift=-1cm] (auth) {Auth Service};
-    \node[draw, rectangle, fill=orange!20, minimum width=2.5cm, minimum height=1cm, below of=api] (metrics) {Metrics Service};
-    \node[draw, rectangle, fill=orange!20, minimum width=2.5cm, minimum height=1cm, below right of=api, xshift=1cm] (crawler) {Crawler Service};
-    
-    % Database
-    \node[draw, cylinder, fill=purple!20, minimum width=2cm, minimum height=2cm, below of=metrics, yshift=-1cm] (db) {PostgreSQL};
-    
-    % External Services
-    \node[draw, rectangle, fill=red!20, minimum width=2cm, minimum height=1cm, right of=crawler, xshift=2cm] (ai1) {ChatGPT};
-    \node[draw, rectangle, fill=red!20, minimum width=2cm, minimum height=1cm, below of=ai1] (ai2) {Perplexity};
-    \node[draw, rectangle, fill=red!20, minimum width=2cm, minimum height=1cm, below of=ai2] (ai3) {Gemini/Claude};
-    
-    % Connections
-    \draw[->] (user) -- (frontend);
-    \draw[->] (frontend) -- (api);
-    \draw[->] (api) -- (auth);
-    \draw[->] (api) -- (metrics);
-    \draw[->] (api) -- (crawler);
-    \draw[->] (auth) -- (db);
-    \draw[->] (metrics) -- (db);
-    \draw[->] (crawler) -- (ai1);
-    \draw[->] (crawler) -- (ai2);
-    \draw[->] (crawler) -- (ai3);
-\end{tikzpicture}
+    style User fill:#e1f5ff
+    style Frontend fill:#e8f5e9
+    style API fill:#fff9c4
+    style Auth fill:#ffe0b2
+    style Metrics fill:#ffe0b2
+    style Crawler fill:#ffe0b2
+    style DB fill:#f3e5f5
+    style ChatGPT fill:#ffcdd2
+    style Perplexity fill:#ffcdd2
+    style Other fill:#ffcdd2
 ```
 
 ### Data Flow Diagram
 
-```tikz
-\begin{tikzpicture}[node distance=1.5cm, auto]
-    % Start
-    \node[draw, circle, fill=green!30] (start) {Start};
+```mermaid
+flowchart TD
+    Start([Start]) --> User[User Creates Query]
+    User --> Scheduler[Scheduler<br/>6h interval]
+    Scheduler --> Crawler[Crawler Executes]
+    Crawler --> ChatGPT[ChatGPT]
+    Crawler --> Perplexity[Perplexity]
+    Crawler --> Other[Other Platforms]
+    ChatGPT --> Process[Parse & Analyze]
+    Perplexity --> Process
+    Other --> Process
+    Process --> DB[(Store Citations)]
+    DB --> Metrics[Calculate Metrics]
+    Metrics --> Dashboard[Update Dashboard]
+    Dashboard --> End([End])
     
-    % User Action
-    \node[draw, rectangle, fill=blue!20, right of=start, xshift=1cm] (user) {User Creates Query};
-    
-    % Scheduler
-    \node[draw, rectangle, fill=yellow!20, below of=user] (scheduler) {Scheduler (6h interval)};
-    
-    % Crawler
-    \node[draw, rectangle, fill=orange!20, below of=scheduler] (crawler) {Crawler Executes};
-    
-    % AI Platforms
-    \node[draw, rectangle, fill=red!20, below left of=crawler, xshift=-1cm] (platform1) {ChatGPT};
-    \node[draw, rectangle, fill=red!20, below of=crawler] (platform2) {Perplexity};
-    \node[draw, rectangle, fill=red!20, below right of=crawler, xshift=1cm] (platform3) {Other Platforms};
-    
-    % Processing
-    \node[draw, rectangle, fill=purple!20, below of=platform2, yshift=-0.5cm] (process) {Parse & Analyze};
-    
-    % Database
-    \node[draw, cylinder, fill=cyan!20, below of=process] (db) {Store Citations};
-    
-    % Metrics
-    \node[draw, rectangle, fill=pink!20, below of=db] (metrics) {Calculate Metrics};
-    
-    % Dashboard
-    \node[draw, rectangle, fill=green!20, below of=metrics] (dashboard) {Update Dashboard};
-    
-    % End
-    \node[draw, circle, fill=red!30, below of=dashboard] (end) {End};
-    
-    % Connections
-    \draw[->] (start) -- (user);
-    \draw[->] (user) -- (scheduler);
-    \draw[->] (scheduler) -- (crawler);
-    \draw[->] (crawler) -- (platform1);
-    \draw[->] (crawler) -- (platform2);
-    \draw[->] (crawler) -- (platform3);
-    \draw[->] (platform1) -- (process);
-    \draw[->] (platform2) -- (process);
-    \draw[->] (platform3) -- (process);
-    \draw[->] (process) -- (db);
-    \draw[->] (db) -- (metrics);
-    \draw[->] (metrics) -- (dashboard);
-    \draw[->] (dashboard) -- (end);
-\end{tikzpicture}
+    style Start fill:#c8e6c9
+    style User fill:#bbdefb
+    style Scheduler fill:#fff9c4
+    style Crawler fill:#ffe0b2
+    style ChatGPT fill:#ffcdd2
+    style Perplexity fill:#ffcdd2
+    style Other fill:#ffcdd2
+    style Process fill:#e1bee7
+    style DB fill:#b2ebf2
+    style Metrics fill:#f8bbd0
+    style Dashboard fill:#c8e6c9
+    style End fill:#ffcdd2
 ```
 
 ### Database Schema Diagram
 
-```tikz
-\begin{tikzpicture}[node distance=2cm, auto]
-    % Organizations
-    \node[draw, rectangle, fill=blue!20, minimum width=3cm, minimum height=2cm] (org) {
-        \textbf{Organizations}\\
-        id\\
-        name\\
-        country\\
-        billing\_plan
-    };
+```mermaid
+erDiagram
+    Organizations ||--o{ Users : "has many"
+    Organizations ||--o{ Brands : "has many"
+    Brands ||--o{ Queries : "has many"
+    Queries ||--o{ ScanRuns : "has many"
+    ScanRuns ||--|| Citations : "has one"
     
-    % Users
-    \node[draw, rectangle, fill=green!20, minimum width=3cm, minimum height=2cm, right of=org, xshift=2cm] (user) {
-        \textbf{Users}\\
-        id\\
-        email\\
-        org\_id\\
-        role
-    };
+    Organizations {
+        int id PK
+        string name
+        string country
+        string billing_plan
+    }
     
-    % Brands
-    \node[draw, rectangle, fill=yellow!20, minimum width=3cm, minimum height=2cm, below of=org] (brand) {
-        \textbf{Brands}\\
-        id\\
-        name\\
-        org\_id\\
-        domain
-    };
+    Users {
+        int id PK
+        string email
+        int org_id FK
+        string role
+        string password_hash
+    }
     
-    % Queries
-    \node[draw, rectangle, fill=orange!20, minimum width=3cm, minimum height=2cm, below of=brand] (query) {
-        \textbf{Queries}\\
-        id\\
-        brand\_id\\
-        text\\
-        language
-    };
+    Brands {
+        int id PK
+        string name
+        int org_id FK
+        string domain
+    }
     
-    % Citations
-    \node[draw, rectangle, fill=purple!20, minimum width=3cm, minimum height=2cm, below of=query] (citation) {
-        \textbf{Citations}\\
-        id\\
-        scan\_run\_id\\
-        brand\_mentioned\\
-        sentiment\\
-        competitors
-    };
+    Queries {
+        int id PK
+        int brand_id FK
+        string text
+        string language
+        json platforms
+        bool active
+    }
     
-    % Relationships
-    \draw[->] (org) -- node[above] {1:N} (user);
-    \draw[->] (org) -- node[left] {1:N} (brand);
-    \draw[->] (brand) -- node[left] {1:N} (query);
-    \draw[->] (query) -- node[left] {1:N} (citation);
-\end{tikzpicture}
+    ScanRuns {
+        int id PK
+        int query_id FK
+        string platform
+        datetime run_at
+        string status
+    }
+    
+    Citations {
+        int id PK
+        int scan_run_id FK
+        bool brand_mentioned
+        int brand_position
+        string snippet
+        string sentiment
+        json competitors
+    }
 ```
 
 ### Component Architecture
 
-```tikz
-\begin{tikzpicture}[node distance=2cm, auto]
-    % Frontend Components
-    \node[draw, rectangle, fill=blue!20, minimum width=4cm, minimum height=1.5cm] (frontend) {
-        \textbf{Frontend (React + TypeScript)}\\
-        Dashboard | Brands | Metrics | Reports
-    };
+```mermaid
+graph TB
+    Frontend[Frontend<br/>React + TypeScript<br/>Dashboard | Brands | Metrics | Reports] --> Backend[Backend<br/>FastAPI<br/>REST API | OAuth 2.0 | Webhooks]
+    Backend --> Auth[Auth Service]
+    Backend --> Metrics[Metrics Service]
+    Backend --> Crawler[Crawler Service]
+    Auth --> DB[(PostgreSQL)]
+    Metrics --> DB
+    Crawler --> DB
+    Crawler --> AI[AI Platforms<br/>ChatGPT | Perplexity | Gemini | Claude | Grok | Meta AI]
     
-    % Backend API
-    \node[draw, rectangle, fill=green!20, minimum width=4cm, minimum height=1.5cm, below of=frontend] (backend) {
-        \textbf{Backend (FastAPI)}\\
-        REST API | OAuth 2.0 | Webhooks
-    };
-    
-    % Services
-    \node[draw, rectangle, fill=yellow!20, minimum width=2.5cm, minimum height=1cm, below left of=backend] (auth) {Auth};
-    \node[draw, rectangle, fill=yellow!20, minimum width=2.5cm, minimum height=1cm, below of=backend] (metrics) {Metrics};
-    \node[draw, rectangle, fill=yellow!20, minimum width=2.5cm, minimum height=1cm, below right of=backend] (crawler) {Crawler};
-    
-    % Database
-    \node[draw, cylinder, fill=purple!20, minimum width=2cm, minimum height=2cm, below of=metrics] (db) {PostgreSQL};
-    
-    % External
-    \node[draw, rectangle, fill=red!20, minimum width=3cm, minimum height=1cm, right of=backend, xshift=3cm] (ai) {AI Platforms};
-    
-    % Connections
-    \draw[->] (frontend) -- (backend);
-    \draw[->] (backend) -- (auth);
-    \draw[->] (backend) -- (metrics);
-    \draw[->] (backend) -- (crawler);
-    \draw[->] (auth) -- (db);
-    \draw[->] (metrics) -- (db);
-    \draw[->] (crawler) -- (db);
-    \draw[->] (crawler) -- (ai);
-\end{tikzpicture}
+    style Frontend fill:#bbdefb
+    style Backend fill:#c8e6c9
+    style Auth fill:#fff9c4
+    style Metrics fill:#fff9c4
+    style Crawler fill:#fff9c4
+    style DB fill:#e1bee7
+    style AI fill:#ffcdd2
 ```
 
 ---
@@ -285,6 +236,7 @@ result = await client.run_query("best CRM software", "Zoho")
 ### Cookie Export Guide
 
 1. **Install browser extension** (e.g., "Get cookies.txt" for Chrome)
+
 2. **Login** to the platform (ChatGPT, X, Facebook)
 3. **Export cookies** as JSON format
 4. **Save** to a file (e.g., `chatgpt_cookies.json`)
